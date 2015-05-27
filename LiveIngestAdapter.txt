@@ -1,0 +1,661 @@
+import java.io.*
+import java.util.*;
+import java.util.List
+import java.util.LinkedHashMap;
+import java.util.Map;
+import com.theplatform.ingest.adapter.api.AdapterResultItem
+import com.theplatform.ingest.data.objects.IngestMedia
+import com.theplatform.ingest.data.objects.IngestMediaFile
+import com.theplatform.media.api.data.objects.Expression
+import java.util.concurrent.BlockingQueue
+import com.theplatform.media.api.data.objects.Media
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import java.text.SimpleDateFormat;
+import com.theplatform.data.api.objects.type.CategoryInfo
+import com.theplatform.media.api.data.objects.TransferInfo
+import com.theplatform.ingest.data.objects.IngestOptions
+import com.theplatform.ingest.data.objects.IngestMethod
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.util.Hashtable;
+import com.theplatform.groovy.helper.MediaHelper
+import com.theplatform.media.api.data.objects.ContentType
+import com.theplatform.media.api.data.objects.Format
+import com.theplatform.media.api.data.objects.FormatClient
+
+
+
+TextFileReader parser = new TextFileReader(resultQueue, metadata,mediaHelper,formatClient)
+parser.parse()
+
+
+// read every row of text file and create or update media based on the media ID
+public class TextFileReader implements LineParsedListener {
+
+	InputStream metadata
+	BlockingQueue<AdapterResultItem> resultQueue
+	List<IngestMedia> medias = new ArrayList<IngestMedia>()
+	MediaHelper mediaHelper;
+	Boolean isObjectAddedToTheQue = false;
+	ArrayList temporarMediaArray = new ArrayList();
+	Map mediaMap = new HashMap();
+	FormatClient formatClient;
+
+	def accountID = "http://access.auth.theplatform.com/data/Account/2337729561"
+	def imageThumb = "http://devapps.foxsportsasia.com/img-fsp/FICLIVE.png"
+
+	Dictionary channelDictionary = new Hashtable();
+	Dictionary categoriesDictionay = new Hashtable();
+	Dictionary channellist    = new Hashtable();
+	HashMap<String, List<String>> countryMap = new HashMap<String, List<String>>();
+
+	public TextFileReader(BlockingQueue<AdapterResultItem> resultQueue, InputStream metadata,MediaHelper mediaHelper, FormatClient formatClient) {
+		this.metadata = metadata
+		this.resultQueue = resultQueue
+		this.mediaHelper = mediaHelper
+		this.formatClient = formatClient
+
+		// Map Hong Kong categories to Our categories
+		categoriesDictionay.put("Auto Racing/FIA Formula One World Championship","Auto Racing/FIA Formula One World C'ship");
+		categoriesDictionay.put("Motor Racing/Motorcycle","Motor Cycle Racing/MotoGP World Championship");
+		categoriesDictionay.put("Auto Racing/Formula E Championship","Auto Racing/Formula E");
+		categoriesDictionay.put("Baseball/Major League Baseball","Baseball/Major League Baseball (Mlb)");
+		categoriesDictionay.put("Motor Racing/Motocross","Motor Cycle Racing/Motocross Programming");
+		categoriesDictionay.put("International Sports News/International Sports Review","International Sports News");
+		categoriesDictionay.put("Golf/Masters, The","Golf/Masters");
+		categoriesDictionay.put("Golf/Masters,The","Golf/Masters");
+		categoriesDictionay.put("Motor Racing/Motor Sports","Motor Cycle Racing/SBK World Superbikes C'ship");
+		categoriesDictionay.put("Awards/Sports","Awards");
+		categoriesDictionay.put("Tennis/Roland Garros","Tennis/French Open");
+		categoriesDictionay.put("Mixed Martial Arts/Mixed Martial Arts","Martial Arts/Martial Arts");
+
+
+		// Set country code and encoder info for each channels
+
+		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
+		List<String> values = new ArrayList<String>();
+		values.add("HK");
+		values.add("TH");
+		countryMap.put("ESN1", values);
+		ArrayList<String> linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS SEA NPL");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_hk_1@312613/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS SEA NPL");
+		channelDictionary.put("ESN1", linktofile);
+
+		values = new ArrayList<String>();
+		values.add("HK");
+		values.add("TH");
+		countryMap.put("SEN1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS 2 NPL");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_hk_1@312614/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS 2 NPL");
+		channelDictionary.put("SEN1", linktofile);
+
+		values = new ArrayList<String>();
+		values.add("HK");
+		values.add("ID");
+		values.add("PH");
+		values.add("SG");
+		values.add("TH");
+		values.add("MY");
+		countryMap.put("ESEA", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("Fox SPORTS 3");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs3_hk_1@312615/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("Fox SPORTS 3");
+		channelDictionary.put("ESEA", linktofile);
+
+		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
+
+
+		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
+
+		values = new ArrayList<String>();
+		values.add("ID");
+		countryMap.put("EID1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS Indonesia");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_id_1@312609/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS Indonesia");
+		channelDictionary.put("EID1", linktofile);
+		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
+
+
+		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
+
+		/*	values = new ArrayList<String>();
+		 values.add("ID");
+		 values.add("PH");
+		 values.add("SG");
+		 countryMap.put("F2E1", values);
+		 linktofile = new ArrayList<String>();
+		 linktofile.add("FOX SPORTS 2 SEA");
+		 linktofile.add("http://fsplive-lh.akamaihd.net/z/fsp_HDSlive2_1@116808/manifest.f4m");
+		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		 linktofile.add("FOX SPORTS 2 S.E.A");
+		 channelDictionary.put("F2E1", linktofile);
+		 
+		 values = new ArrayList<String>();
+		 values.add("SG");
+		 countryMap.put("ESE1", values);
+		 linktofile = new ArrayList<String>();
+		 linktofile.add("FOX SPORTS S.E.A");
+		 linktofile.add("http://fsplive-lh.akamaihd.net/z/fsp_HDSlive1_1@114354/manifest.f4m");
+		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		 linktofile.add("FOX SPORTS S.E.A");
+		 channelDictionary.put("ESE1", linktofile);
+		 */
+
+
+
+		// ------------------- This is Temporary for Opted channel ( Roland Garos not for SG ) --------------------------------------------------
+
+		values = new ArrayList<String>();
+		values.add("ID");
+		values.add("PH");
+		values.add("SG");
+		countryMap.put("F2S1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS 2 SEA");
+		linktofile.add("http://fsplive_hls-lh.akamaihd.net/i/fsp_hls_fssea_1@305330/master.m3u8");
+		linktofile.add("FOX SPORTS 2 S.E.A");
+		channelDictionary.put("F2S1", linktofile);
+
+		values = new ArrayList<String>();
+		values.add("SG");
+		countryMap.put("ESG1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS S.E.A");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS S.E.A");
+		channelDictionary.put("ESG1", linktofile);
+
+
+		// ---------------------------------------------------------------------------------------------------------------------------------------
+
+		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
+
+		// --------- Malaysia Channel - Fox Sports Malaysia & Fox Sports 2 Malaysia -----------------
+
+		values = new ArrayList<String>();
+		values.add("MY");
+		countryMap.put("EML1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS Malaysia");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_my_1@312606/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS Malaysia");
+		channelDictionary.put("EML1", linktofile);
+
+		values = new ArrayList<String>();
+		values.add("MY");
+		countryMap.put("F2M1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS 2 Malaysia");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_my_1@312607/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS 2 Malaysia");
+		channelDictionary.put("F2M1", linktofile);
+
+		// --------- Malaysia Channel - Fox Sports Malaysia & Fox Sports 2 Malaysia -----------------
+
+		// --------- Philippine Channel -  Fox Sports Philippine ------------------------------------
+
+		values = new ArrayList<String>();
+		values.add("PH");
+		countryMap.put("EPH1", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS Philippines");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_ph_1@312608/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS Philippines");
+		channelDictionary.put("EPH1", linktofile);
+
+		// --------- Philippine Channel -  Fox Sports Philippine ------------------------------------
+
+		values = new ArrayList<String>();
+		values.add("HK");
+		values.add("ID");
+		values.add("PH");
+		values.add("SG");
+		values.add("TH");
+		values.add("MY");
+		countryMap.put("FM31", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("Fox SPORTS 3");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs3_hk_1@312615/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("Fox SPORTS 3");
+		channelDictionary.put("FM31", linktofile);
+
+
+
+
+	}
+
+	public void parse() {
+		TextParser parser = new TextParser(metadata,this)
+		parser.process(channelDictionary)
+	}
+	public String getDateTime(String dateString , String timeString){
+
+		String year = dateString.substring(0, Math.min(dateString.length(), 4));
+		String month = dateString.substring(4, Math.min(dateString.length(),6));
+		String currentDate = dateString.substring(6, Math.min(dateString.length(),8));
+
+		return currentDate+"/"+month+"/"+    year+" "+timeString;
+	}
+
+
+	/**
+	 * Text file processing is finished and add each element in temporary media map to the adapter results queue
+	 */
+
+	public void finishedProcessing(){
+		// Get a set of the entries
+		Set mediaSet = mediaMap.entrySet();
+		// Get an iterator
+		Iterator i = mediaSet.iterator();
+
+		// Add each media to adapter resputsQues
+		while(i.hasNext()) {
+			Map.Entry me = (Map.Entry)i.next();
+			AdapterResultItem results = new AdapterResultItem()
+			results.setMedia(me.getValue());
+			resultQueue.put(results);
+		}
+	}
+
+	int getSeconds(String time){
+		String[] timeComponents = time.split(":");
+		String hour = timeComponents[0];
+		String minute = timeComponents[1];
+		String seconds = timeComponents[2];
+
+		int hourIntValue = Integer.parseInt(hour);
+		int minuteIntValue = Integer.parseInt(minute);
+		int secondIntValue = Integer.parseInt(seconds);
+
+		return hourIntValue*60*60+minuteIntValue*60+secondIntValue;
+	}
+
+
+
+	public String getDateTime(String startDate,String startTime, String endTime){
+
+		SimpleDateFormat df = new SimpleDateFormat("MM-dd-yy HH:mm:ss z");
+		Date start = df.parse(startDate+" "+startTime+" SGT");
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(start);
+		cal.add(Calendar.SECOND, getSeconds(endTime));
+		String newTime = df.format(cal.getTime());
+	}
+
+	def replaceXmlSpecialCharacters(xmlString){
+
+		xmlString.replaceAll("&lt;","<");
+		xmlString.replaceAll("&amp;","&");
+		xmlString.replaceAll("&gt;",">");
+		xmlString.replaceAll("&quot;","\"");
+		xmlString.replaceAll("&apos;","'");
+
+	}
+
+	public String switchCategories(String categoryName){
+		boolean isCategoryNeedToMap=categoriesDictionay.containsKey(categoryName);
+		if(!isCategoryNeedToMap){
+			return categoryName;
+		}
+
+		return categoriesDictionay.get(categoryName);
+	}
+
+	public void lineParsed(String [] rowValues) {
+
+		def ingestMediaThumbnailFiles = []
+		def  linkIngestMediaFiles = []
+		def  catList = []
+		Boolean update = false
+		Exception ex = null
+
+		Media oldMedia = null
+
+		final String[] row = rowValues;//event.getRow()
+		//create new media object
+		IngestMedia media = new IngestMedia()
+		//create new media file object
+		IngestMediaFile mediaFile = new IngestMediaFile()
+		//set the file in the media object
+		media.setContent(mediaFile)
+
+		// Check for the unique id , 18th column of the text file is unique column (Title Broadcast reference)
+		if(row[17]!=""){
+			String mediaGuid = row[17].replaceAll("\"", "")+"ODL"
+
+			// Check for the existing media, if media exist update or else create new record
+			if (mediaHelper.mediaExistsByGuid(mediaGuid))
+			{
+
+				update = true
+				oldMedia = mediaHelper.getMediaByGuid(mediaGuid)
+
+
+			} else{
+				update = false
+
+			}
+
+			// set refrence id for each media
+			media.guid =mediaGuid
+
+
+
+			String mediaTitle = row[9].replaceAll("\"", "")
+			String competitorTexts = row[11].replaceAll("\"","")
+
+			if(mediaTitle!=""){
+				if(competitorTexts!=""){
+					media.title = mediaTitle + " - " + competitorTexts
+				}else{
+
+					media.title = mediaTitle
+				}
+			}else{
+				if(!update){
+					ex = new Exception ("Media item requires some kind of title.")
+				}
+			}
+		}else{
+			ex = new Exception ("Media item requires unique ID")
+
+		}
+
+		if(ex==null){
+
+			// if new media set the country list, else check for the county code, if country code dosen't exist add the country code to media countries
+			if (!update){
+				media.countries =countryMap.get(row[0].replaceAll("\"", "")).toArray();
+			} else{
+
+
+				List<String> list = new ArrayList<String>();
+				list.addAll(oldMedia.countries)
+
+				for(String countryString : countryMap.get(row[0].replaceAll("\"", "")).toArray()){
+
+					if (list.contains(countryString)){
+						continue;
+					} else{
+						list.add(countryString)
+
+					}
+				}
+
+				media.countries = list.toArray()
+
+			}
+
+
+			// set media custom values
+			media.setCustomValue(accountID, "allowedCountry",media.countries)
+
+			media.excludeCountries = false
+
+			String keywords = row[11].replaceAll("\"", "")+","+ row[10].replaceAll("\"", "");
+			keywords = keywords.startsWith(",") ? keywords.substring(1) : keywords;
+			media.keywords = keywords.endsWith(",") ? keywords.substring(0,keywords.length()-1) : keywords;
+
+			media.setCustomValue(accountID, "Venue", row[10].replaceAll("\"", ""));
+			media.setCustomValue(accountID, "Keywords", media.keywords);
+			media.setCustomValue(accountID, "specialAiringCategory", "LIVE (OD)");
+			media.setCustomValue(accountID, "sourceChannel", channelDictionary.get(row[0].replaceAll("\"", "")).get(0));
+			media.setCustomValue(accountID, "seriesName", row[14]);
+			media.setCustomValue(null, "isLive", true);
+			media.setCustomValue(null, "isFree", false);
+		
+			// Split column values for Competitor A & B
+			def competitorValues = row[11].replaceAll("\"", "").split(' vs. ')
+			media.setCustomValue(accountID, "CompetitorA", competitorValues[0]);
+			if(competitorValues.size()>1){
+				media.setCustomValue(accountID, "CompetitorB", competitorValues[1]);
+			}
+
+
+
+			// set workflow labels
+			def workflowLabel = new String[1]
+			workflowLabel[0] = channelDictionary.get(row[0].replaceAll("\"", "")).get(2)
+			media.setAdminTags(workflowLabel)
+
+			// set available and expiration date for each media
+			SimpleDateFormat pdf = new SimpleDateFormat("MM-dd-yy HH:mm:ss z");
+			media.availableDate = pdf.parse( row[4].replaceAll("\"", "") + " "+row[5].replaceAll("\"", "")+" SGT")
+			media.expirationDate = pdf.parse(getDateTime(row[4].replaceAll("\"", ""),row[5].replaceAll("\"", ""),row[6].replaceAll("\"", "")))
+
+
+			// set categories based on the text file information
+			CategoryInfo catInfo = new CategoryInfo()
+
+
+			String categoryName = row[1].replaceAll("\"", "")+"/"+ row[2].replaceAll("\"", "")
+			categoryName = categoryName.startsWith("/") ? categoryName.substring(1) : categoryName;
+			catInfo.name = switchCategories(replaceXmlSpecialCharacters(categoryName.endsWith("/") ? categoryName.substring(0,categoryName.length()-1) : categoryName));
+
+
+			//catInfo.name = row[1].replaceAll("\"", "")+"/"+ row[2].replaceAll("\"", "")
+			catList << catInfo;
+			media.categories = catList.toArray(new CategoryInfo[catList.size()])
+
+
+			// If media update true then replace the existing m3u8 file
+			String mediaFileID = row[17].replaceAll("\"", "")
+
+			if (update){
+
+				IngestMediaFile fileToDelete = new IngestMediaFile()
+				fileToDelete.guid = mediaFileID
+				fileToDelete.deleted = true
+				linkIngestMediaFiles << fileToDelete
+
+			}
+
+
+			IngestMediaFile mediaFileSource = new IngestMediaFile()
+			mediaFileSource.sourceUrl = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)
+			mediaFileSource.assetTypes = ["Live"]
+			mediaFileSource.contentType = ContentType.video
+			Format format1 = formatClient.getByExtension("m3u")
+			mediaFileSource.format = format1
+			mediaFileSource.guid = mediaFileID
+			mediaFileSource.deleted = false
+			TransferInfo transferInfo = new TransferInfo()
+			transferInfo.supportsStreaming = true
+			mediaFileSource.transferInfo = transferInfo
+			IngestOptions ingestOptions = new IngestOptions()
+			ingestOptions.method = IngestMethod.Link
+			mediaFileSource.ingestOptions = ingestOptions
+			mediaFileSource.isDefault = true
+
+			linkIngestMediaFiles << mediaFileSource
+
+
+			// Set Mezzanine Image
+			if(!update){
+				IngestMediaFile mediaFileThumb = new IngestMediaFile()
+				mediaFileThumb.sourceUrl = imageThumb
+				mediaFileThumb.assetTypes = ["Mezzanine Image"]
+				mediaFileThumb.transferInfo = transferInfo
+				mediaFileThumb.ingestOptions = ingestOptions
+				ingestMediaThumbnailFiles << mediaFileThumb
+			}
+			// Set media thumbnails & media contents
+			media.setThumbnails(ingestMediaThumbnailFiles.toArray(new IngestMediaFile[ingestMediaThumbnailFiles.size()]))
+			media.setContent(linkIngestMediaFiles.toArray(new IngestMediaFile[linkIngestMediaFiles.size()]))
+			//	}
+		}
+
+
+
+		AdapterResultItem results = new AdapterResultItem()
+		if(ex!=null){
+			results.setException(ex)
+			resultQueue.put(results)
+		}else{
+
+
+			// same show can be available in diffrent countries.
+			// Add media to temporary media map
+			if(!isObjectAddedToTheQue){
+
+				isObjectAddedToTheQue = true;
+				mediaMap.put(media.guid,media);
+
+			}
+
+			else{
+
+				// Check wether media with same ID exist , if so append new country list to existing country list
+				IngestMedia existingMedia =  mediaMap.get(media.guid);
+
+				if(existingMedia){
+					List<String> list = new ArrayList<String>();
+					list.addAll(existingMedia.countries)
+
+					for(String countryString : countryMap.get(row[0].replaceAll("\"", "")).toArray()){
+
+						if (list.contains(countryString)){
+							continue;
+						} else{
+							list.add(countryString)
+
+						}
+					}
+
+					existingMedia.countries = list.toArray()
+					existingMedia.setCustomValue(accountID, "allowedCountry",existingMedia.countries)
+
+
+
+				}else{
+
+					mediaMap.put(media.guid,media);
+
+				}
+
+
+			}
+
+
+		}
+	}
+
+
+	public class LineParsedEvent
+	{
+
+		//row values (String[] of each column)
+		private String[] rowValues
+
+		public LineParsedEvent(final String[] rowValues)
+		{
+
+			this.rowValues = rowValues
+		}
+
+		/**
+		 * @return row values (String[] of each column)
+		 */
+		public String[] getRow()
+		{
+			return this.rowValues
+		}
+	}
+
+	public class TextParser
+	{
+		LineParsedListener listener = null;
+		InputStream inputStream = null;
+
+		public TextParser(InputStream xlsInputStream, LineParsedListener listener)
+		{
+			this.listener = listener;
+			this.inputStream = xlsInputStream;
+		}
+
+		/**
+		 * Process each line
+		 */
+		public void process(Dictionary channelDictionay)
+		{
+
+
+			InputStreamReader is = null ;
+			BufferedReader br = null;
+			String line = "";
+			String cvsSplitBy = ",";
+			int rowIndex = 0;
+
+			try {
+
+				is =  new InputStreamReader(inputStream);
+				br =  new BufferedReader(is);
+				while ((line = br.readLine()) != null) {
+
+
+
+					String[] dataValue = line.split("\t");
+					String channelName = dataValue[0];
+					String value2 = dataValue[1];
+
+					String airCategory = dataValue[13];
+
+
+					// Only Extract record for each channel code in channelDictionay & airing categoy is either Live (L) or Simulcast (S)
+
+					if( channelDictionay.get(channelName)!=null && (airCategory == "L")){
+
+						listener.lineParsed(dataValue);
+
+					}
+
+
+				}
+				// text file processing is finished
+				listener.finishedProcessing()
+
+
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+
+		}
+	}
+
+	/**
+	 * Interface to implement once row is parsed  
+	 */
+	public interface LineParsedListener extends EventListener
+	{
+		public void lineParsed(String [] rowValues)
+		public void finishedProcessing()
+
+	}
+
+}
