@@ -32,6 +32,9 @@ import com.theplatform.media.api.data.objects.FormatClient
 
 
 
+
+
+
 TextFileReader parser = new TextFileReader(resultQueue, metadata,mediaHelper,formatClient)
 parser.parse()
 
@@ -49,21 +52,26 @@ public class TextFileReader implements LineParsedListener {
 	FormatClient formatClient;
 
 	def accountID = "http://access.auth.theplatform.com/data/Account/2337729561"
-	def imageThumb = "http://devapps.foxsportsasia.com/img-fsp/FICLIVE.png"
+			def imageThumb = "http://devapps.foxsportsasia.com/img-fsp/FICLIVE.png"
 
-	Dictionary channelDictionary = new Hashtable();
+			Dictionary channelDictionary = new Hashtable();
 	Dictionary categoriesDictionay = new Hashtable();
 	Dictionary channellist    = new Hashtable();
 	HashMap<String, List<String>> countryMap = new HashMap<String, List<String>>();
 
+	// Define shows 
+	String[] showsArray = new String[11];
+
+
+
 	public TextFileReader(BlockingQueue<AdapterResultItem> resultQueue, InputStream metadata,MediaHelper mediaHelper, FormatClient formatClient) {
 		this.metadata = metadata
-		this.resultQueue = resultQueue
-		this.mediaHelper = mediaHelper
-		this.formatClient = formatClient
+				this.resultQueue = resultQueue
+				this.mediaHelper = mediaHelper
+				this.formatClient = formatClient
 
-		// Map Hong Kong categories to Our categories
-		categoriesDictionay.put("Auto Racing/FIA Formula One World Championship","Auto Racing/FIA Formula One World C'ship");
+				// Map Hong Kong categories to Our categories
+				categoriesDictionay.put("Auto Racing/FIA Formula One World Championship","Auto Racing/FIA Formula One World C'ship");
 		categoriesDictionay.put("Motor Racing/Motorcycle","Motor Cycle Racing/MotoGP World Championship");
 		categoriesDictionay.put("Auto Racing/Formula E Championship","Auto Racing/Formula E");
 		categoriesDictionay.put("Baseball/Major League Baseball","Baseball/Major League Baseball (Mlb)");
@@ -76,6 +84,19 @@ public class TextFileReader implements LineParsedListener {
 		categoriesDictionay.put("Tennis/Roland Garros","Tennis/French Open");
 		categoriesDictionay.put("Mixed Martial Arts/Mixed Martial Arts","Martial Arts/Martial Arts");
 
+
+
+		showsArray[0] = "FOX Sports Fit - Sister Hiit";
+		showsArray[1] = "FOX Sports Fit - 101 Exercises To Do Before You Die";
+		showsArray[2] = "Sport Confidential";
+		showsArray[3] = "FOX SPORTS Fit - Reebok Crossfit";
+		showsArray[4] = "Badminton Unlimited";
+		showsArray[5] = "National Icons";
+		showsArray[6] = "FOX Sports Fit - Fit For Fashion";
+		showsArray[7] = "FOX Sports Fit - STAR Block Workout";
+		showsArray[8] = "STAR Block Workout";
+		showsArray[9] = "FOX Sports Fit - Kirei Yoga";
+		showsArray[10] = "Fox Sports Central";
 
 		// Set country code and encoder info for each channels
 
@@ -143,7 +164,7 @@ public class TextFileReader implements LineParsedListener {
 		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		 linktofile.add("FOX SPORTS 2 S.E.A");
 		 channelDictionary.put("F2E1", linktofile);
-		 
+
 		 values = new ArrayList<String>();
 		 values.add("SG");
 		 countryMap.put("ESE1", values);
@@ -306,6 +327,23 @@ public class TextFileReader implements LineParsedListener {
 
 	}
 
+	// This method loops through the showsarray to check wheather the current media is show or not
+	boolean checkForShow(String title,String[] arrayOfShows){
+		boolean isShow = false;
+
+		for (int i=0;i<arrayOfShows.length;i++){
+			if(title.toLowerCase().startsWith(arrayOfShows.getAt(i).toLowerCase())){
+				isShow = true
+						break
+			}
+			isShow = false
+		}
+
+		return isShow
+	}
+
+
+
 	public String switchCategories(String categoryName){
 		boolean isCategoryNeedToMap=categoriesDictionay.containsKey(categoryName);
 		if(!isCategoryNeedToMap){
@@ -318,14 +356,13 @@ public class TextFileReader implements LineParsedListener {
 	public void lineParsed(String [] rowValues) {
 
 		def ingestMediaThumbnailFiles = []
-		def  linkIngestMediaFiles = []
-		def  catList = []
-		Boolean update = false
-		Exception ex = null
+				def  linkIngestMediaFiles = []
+						def  catList = []
+								Boolean update = false
+								Exception ex = null
+								Media oldMedia = null
 
-		Media oldMedia = null
-
-		final String[] row = rowValues;//event.getRow()
+								final String[] row = rowValues;//event.getRow()
 		//create new media object
 		IngestMedia media = new IngestMedia()
 		//create new media file object
@@ -333,43 +370,44 @@ public class TextFileReader implements LineParsedListener {
 		//set the file in the media object
 		media.setContent(mediaFile)
 
+		String mediaTitle = row[9].replaceAll("\"", "")
 		// Check for the unique id , 18th column of the text file is unique column (Title Broadcast reference)
 		if(row[17]!=""){
 			String mediaGuid = row[17].replaceAll("\"", "")+"ODL"
 
-			// Check for the existing media, if media exist update or else create new record
-			if (mediaHelper.mediaExistsByGuid(mediaGuid))
-			{
+					// Check for the existing media, if media exist update or else create new record
+					if (mediaHelper.mediaExistsByGuid(mediaGuid))
+					{
 
-				update = true
-				oldMedia = mediaHelper.getMediaByGuid(mediaGuid)
+						update = true
+								oldMedia = mediaHelper.getMediaByGuid(mediaGuid)
+								mediaTitle = oldMedia.title
 
+					} else{
+						update = false
 
-			} else{
-				update = false
-
-			}
+					}
 
 			// set refrence id for each media
 			media.guid =mediaGuid
 
 
 
-			String mediaTitle = row[9].replaceAll("\"", "")
-			String competitorTexts = row[11].replaceAll("\"","")
 
-			if(mediaTitle!=""){
-				if(competitorTexts!=""){
-					media.title = mediaTitle + " - " + competitorTexts
-				}else{
+					String competitorTexts = row[11].replaceAll("\"","")
 
-					media.title = mediaTitle
-				}
-			}else{
-				if(!update){
-					ex = new Exception ("Media item requires some kind of title.")
-				}
-			}
+					if(mediaTitle!=""){
+						if(competitorTexts!=""){
+							media.title = mediaTitle + " - " + competitorTexts
+						}else{
+
+							media.title = mediaTitle
+						}
+					}else{
+						if(!update){
+							ex = new Exception ("Media item requires some kind of title.")
+						}
+					}
 		}else{
 			ex = new Exception ("Media item requires unique ID")
 
@@ -415,12 +453,15 @@ public class TextFileReader implements LineParsedListener {
 			media.setCustomValue(accountID, "specialAiringCategory", "LIVE (OD)");
 			media.setCustomValue(accountID, "sourceChannel", channelDictionary.get(row[0].replaceAll("\"", "")).get(0));
 			media.setCustomValue(accountID, "seriesName", row[14]);
+
 			media.setCustomValue(null, "isLive", true);
 			media.setCustomValue(null, "isFree", false);
-		
+			media.setCustomValue(null, "isShow", checkForShow(mediaTitle,showsArray));
+			media.setCustomValue(null, "isChannel", false);
+
 			// Split column values for Competitor A & B
 			def competitorValues = row[11].replaceAll("\"", "").split(' vs. ')
-			media.setCustomValue(accountID, "CompetitorA", competitorValues[0]);
+					media.setCustomValue(accountID, "CompetitorA", competitorValues[0]);
 			if(competitorValues.size()>1){
 				media.setCustomValue(accountID, "CompetitorB", competitorValues[1]);
 			}
@@ -429,17 +470,17 @@ public class TextFileReader implements LineParsedListener {
 
 			// set workflow labels
 			def workflowLabel = new String[1]
-			workflowLabel[0] = channelDictionary.get(row[0].replaceAll("\"", "")).get(2)
-			media.setAdminTags(workflowLabel)
+					workflowLabel[0] = channelDictionary.get(row[0].replaceAll("\"", "")).get(2)
+					media.setAdminTags(workflowLabel)
 
-			// set available and expiration date for each media
-			SimpleDateFormat pdf = new SimpleDateFormat("MM-dd-yy HH:mm:ss z");
+					// set available and expiration date for each media
+					SimpleDateFormat pdf = new SimpleDateFormat("MM-dd-yy HH:mm:ss z");
 			media.availableDate = pdf.parse( row[4].replaceAll("\"", "") + " "+row[5].replaceAll("\"", "")+" SGT")
-			media.expirationDate = pdf.parse(getDateTime(row[4].replaceAll("\"", ""),row[5].replaceAll("\"", ""),row[6].replaceAll("\"", "")))
+					media.expirationDate = pdf.parse(getDateTime(row[4].replaceAll("\"", ""),row[5].replaceAll("\"", ""),row[6].replaceAll("\"", "")))
 
 
-			// set categories based on the text file information
-			CategoryInfo catInfo = new CategoryInfo()
+					// set categories based on the text file information
+					CategoryInfo catInfo = new CategoryInfo()
 
 
 			String categoryName = row[1].replaceAll("\"", "")+"/"+ row[2].replaceAll("\"", "")
@@ -452,28 +493,28 @@ public class TextFileReader implements LineParsedListener {
 			media.categories = catList.toArray(new CategoryInfo[catList.size()])
 
 
-			// If media update true then replace the existing m3u8 file
-			String mediaFileID = row[17].replaceAll("\"", "")
+					// If media update true then replace the existing m3u8 file
+					String mediaFileID = row[17].replaceAll("\"", "")
 
-			if (update){
+					if (update){
 
-				IngestMediaFile fileToDelete = new IngestMediaFile()
-				fileToDelete.guid = mediaFileID
-				fileToDelete.deleted = true
-				linkIngestMediaFiles << fileToDelete
+						IngestMediaFile fileToDelete = new IngestMediaFile()
+						fileToDelete.guid = mediaFileID
+						fileToDelete.deleted = true
+						linkIngestMediaFiles << fileToDelete
 
-			}
+					}
 
 
 			IngestMediaFile mediaFileSource = new IngestMediaFile()
 			mediaFileSource.sourceUrl = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)
 			mediaFileSource.assetTypes = ["Live"]
-			mediaFileSource.contentType = ContentType.video
-			Format format1 = formatClient.getByExtension("m3u")
-			mediaFileSource.format = format1
-			mediaFileSource.guid = mediaFileID
-			mediaFileSource.deleted = false
-			TransferInfo transferInfo = new TransferInfo()
+					mediaFileSource.contentType = ContentType.video
+					Format format1 = formatClient.getByExtension("m3u")
+					mediaFileSource.format = format1
+					mediaFileSource.guid = mediaFileID
+					mediaFileSource.deleted = false
+					TransferInfo transferInfo = new TransferInfo()
 			transferInfo.supportsStreaming = true
 			mediaFileSource.transferInfo = transferInfo
 			IngestOptions ingestOptions = new IngestOptions()
@@ -489,9 +530,9 @@ public class TextFileReader implements LineParsedListener {
 				IngestMediaFile mediaFileThumb = new IngestMediaFile()
 				mediaFileThumb.sourceUrl = imageThumb
 				mediaFileThumb.assetTypes = ["Mezzanine Image"]
-				mediaFileThumb.transferInfo = transferInfo
-				mediaFileThumb.ingestOptions = ingestOptions
-				ingestMediaThumbnailFiles << mediaFileThumb
+						mediaFileThumb.transferInfo = transferInfo
+						mediaFileThumb.ingestOptions = ingestOptions
+						ingestMediaThumbnailFiles << mediaFileThumb
 			}
 			// Set media thumbnails & media contents
 			media.setThumbnails(ingestMediaThumbnailFiles.toArray(new IngestMediaFile[ingestMediaThumbnailFiles.size()]))
@@ -537,7 +578,7 @@ public class TextFileReader implements LineParsedListener {
 					}
 
 					existingMedia.countries = list.toArray()
-					existingMedia.setCustomValue(accountID, "allowedCountry",existingMedia.countries)
+							existingMedia.setCustomValue(accountID, "allowedCountry",existingMedia.countries)
 
 
 
