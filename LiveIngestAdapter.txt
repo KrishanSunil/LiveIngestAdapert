@@ -32,6 +32,9 @@ import com.theplatform.media.api.data.objects.FormatClient
 
 
 
+
+
+
 TextFileReader parser = new TextFileReader(resultQueue, metadata,mediaHelper,formatClient)
 parser.parse()
 
@@ -56,6 +59,11 @@ public class TextFileReader implements LineParsedListener {
 	Dictionary channellist    = new Hashtable();
 	HashMap<String, List<String>> countryMap = new HashMap<String, List<String>>();
 
+	// Define shows
+	String[] showsArray = new String[11];
+
+
+
 	public TextFileReader(BlockingQueue<AdapterResultItem> resultQueue, InputStream metadata,MediaHelper mediaHelper, FormatClient formatClient) {
 		this.metadata = metadata
 		this.resultQueue = resultQueue
@@ -76,6 +84,19 @@ public class TextFileReader implements LineParsedListener {
 		categoriesDictionay.put("Tennis/Roland Garros","Tennis/French Open");
 		categoriesDictionay.put("Mixed Martial Arts/Mixed Martial Arts","Martial Arts/Martial Arts");
 
+
+
+		showsArray[0] = "FOX Sports Fit - Sister Hiit";
+		showsArray[1] = "FOX Sports Fit - 101 Exercises To Do Before You Die";
+		showsArray[2] = "Sport Confidential";
+		showsArray[3] = "FOX SPORTS Fit - Reebok Crossfit";
+		showsArray[4] = "Badminton Unlimited";
+		showsArray[5] = "National Icons";
+		showsArray[6] = "FOX Sports Fit - Fit For Fashion";
+		showsArray[7] = "FOX Sports Fit - STAR Block Workout";
+		showsArray[8] = "STAR Block Workout";
+		showsArray[9] = "FOX Sports Fit - Kirei Yoga";
+		showsArray[10] = "Fox Sports Central";
 
 		// Set country code and encoder info for each channels
 
@@ -132,34 +153,30 @@ public class TextFileReader implements LineParsedListener {
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
 
-		/*	values = new ArrayList<String>();
+		 values = new ArrayList<String>();
 		 values.add("ID");
 		 values.add("PH");
 		 values.add("SG");
 		 countryMap.put("F2E1", values);
 		 linktofile = new ArrayList<String>();
 		 linktofile.add("FOX SPORTS 2 SEA");
-		 linktofile.add("http://fsplive-lh.akamaihd.net/z/fsp_HDSlive2_1@116808/manifest.f4m");
 		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		 linktofile.add("FOX SPORTS 2 S.E.A");
 		 channelDictionary.put("F2E1", linktofile);
-		 
-		 values = new ArrayList<String>();
+		
+		  values = new ArrayList<String>();
 		 values.add("SG");
 		 countryMap.put("ESE1", values);
 		 linktofile = new ArrayList<String>();
 		 linktofile.add("FOX SPORTS S.E.A");
-		 linktofile.add("http://fsplive-lh.akamaihd.net/z/fsp_HDSlive1_1@114354/manifest.f4m");
 		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		 linktofile.add("FOX SPORTS S.E.A");
 		 channelDictionary.put("ESE1", linktofile);
-		 */
-
-
+		
 
 		// ------------------- This is Temporary for Opted channel ( Roland Garos not for SG ) --------------------------------------------------
 
-		values = new ArrayList<String>();
+	/*	values = new ArrayList<String>();
 		values.add("ID");
 		values.add("PH");
 		values.add("SG");
@@ -172,14 +189,14 @@ public class TextFileReader implements LineParsedListener {
 
 		values = new ArrayList<String>();
 		values.add("SG");
-		countryMap.put("ESG1", values);
+		countryMap.put("ESE1", values);
 		linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS S.E.A");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS S.E.A");
-		channelDictionary.put("ESG1", linktofile);
+		channelDictionary.put("ESE1", linktofile);
 
-
+		*/
 		// ---------------------------------------------------------------------------------------------------------------------------------------
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
@@ -306,6 +323,23 @@ public class TextFileReader implements LineParsedListener {
 
 	}
 
+	// This method loops through the showsarray to check wheather the current media is show or not
+	boolean checkForShow(String title,String[] arrayOfShows){
+		boolean isShow = false;
+
+		for (int i=0;i<arrayOfShows.length;i++){
+			if(title.toLowerCase().startsWith(arrayOfShows.getAt(i).toLowerCase())){
+				isShow = true
+				break
+			}
+			isShow = false
+		}
+
+		return isShow
+	}
+
+
+
 	public String switchCategories(String categoryName){
 		boolean isCategoryNeedToMap=categoriesDictionay.containsKey(categoryName);
 		if(!isCategoryNeedToMap){
@@ -322,7 +356,6 @@ public class TextFileReader implements LineParsedListener {
 		def  catList = []
 		Boolean update = false
 		Exception ex = null
-
 		Media oldMedia = null
 
 		final String[] row = rowValues;//event.getRow()
@@ -333,6 +366,7 @@ public class TextFileReader implements LineParsedListener {
 		//set the file in the media object
 		media.setContent(mediaFile)
 
+		String mediaTitle = row[9].replaceAll("\"", "")
 		// Check for the unique id , 18th column of the text file is unique column (Title Broadcast reference)
 		if(row[17]!=""){
 			String mediaGuid = row[17].replaceAll("\"", "")+"ODL"
@@ -343,7 +377,7 @@ public class TextFileReader implements LineParsedListener {
 
 				update = true
 				oldMedia = mediaHelper.getMediaByGuid(mediaGuid)
-
+				mediaTitle = oldMedia.title
 
 			} else{
 				update = false
@@ -355,7 +389,7 @@ public class TextFileReader implements LineParsedListener {
 
 
 
-			String mediaTitle = row[9].replaceAll("\"", "")
+
 			String competitorTexts = row[11].replaceAll("\"","")
 
 			if(mediaTitle!=""){
@@ -365,6 +399,13 @@ public class TextFileReader implements LineParsedListener {
 
 					media.title = mediaTitle
 				}
+
+				// Remove the pound sign from HK text file
+				int poundIngex = media.title.indexOf("#");
+				if (poundIngex != -1)
+					{
+						media.title = media.title.substring(0, poundIngex);
+					}
 			}else{
 				if(!update){
 					ex = new Exception ("Media item requires some kind of title.")
@@ -415,9 +456,12 @@ public class TextFileReader implements LineParsedListener {
 			media.setCustomValue(accountID, "specialAiringCategory", "LIVE (OD)");
 			media.setCustomValue(accountID, "sourceChannel", channelDictionary.get(row[0].replaceAll("\"", "")).get(0));
 			media.setCustomValue(accountID, "seriesName", row[14]);
+
 			media.setCustomValue(null, "isLive", true);
 			media.setCustomValue(null, "isFree", false);
-		
+			media.setCustomValue(null, "isShow", checkForShow(mediaTitle,showsArray));
+			media.setCustomValue(null, "isChannel", false);
+
 			// Split column values for Competitor A & B
 			def competitorValues = row[11].replaceAll("\"", "").split(' vs. ')
 			media.setCustomValue(accountID, "CompetitorA", competitorValues[0]);
@@ -466,7 +510,7 @@ public class TextFileReader implements LineParsedListener {
 
 
 			IngestMediaFile mediaFileSource = new IngestMediaFile()
-			mediaFileSource.sourceUrl = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)
+			mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)
 			mediaFileSource.assetTypes = ["Live"]
 			mediaFileSource.contentType = ContentType.video
 			Format format1 = formatClient.getByExtension("m3u")
@@ -487,7 +531,7 @@ public class TextFileReader implements LineParsedListener {
 			// Set Mezzanine Image
 			if(!update){
 				IngestMediaFile mediaFileThumb = new IngestMediaFile()
-				mediaFileThumb.sourceUrl = imageThumb
+				mediaFileThumb.url = imageThumb
 				mediaFileThumb.assetTypes = ["Mezzanine Image"]
 				mediaFileThumb.transferInfo = transferInfo
 				mediaFileThumb.ingestOptions = ingestOptions
@@ -649,7 +693,7 @@ public class TextFileReader implements LineParsedListener {
 	}
 
 	/**
-	 * Interface to implement once row is parsed  
+	 * Interface to implement once row is parsed
 	 */
 	public interface LineParsedListener extends EventListener
 	{
