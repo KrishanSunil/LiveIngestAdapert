@@ -33,7 +33,7 @@ import com.theplatform.media.api.data.objects.FormatClient
 
 
 
-
+// This is Before Changing the Soccer to FootBall
 
 TextFileReader parser = new TextFileReader(resultQueue, metadata,mediaHelper,formatClient)
 parser.parse()
