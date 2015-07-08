@@ -33,7 +33,7 @@ import com.theplatform.media.api.data.objects.FormatClient
 
 
 
-// This is Before Changing the Soccer to FootBall
+
 
 TextFileReader parser = new TextFileReader(resultQueue, metadata,mediaHelper,formatClient)
 parser.parse()
@@ -45,6 +45,7 @@ public class TextFileReader implements LineParsedListener {
 	InputStream metadata
 	BlockingQueue<AdapterResultItem> resultQueue
 	List<IngestMedia> medias = new ArrayList<IngestMedia>()
+	List<IngestMediaFile> ingestMediaFiles = new ArrayList<IngestMediaFile>()
 	MediaHelper mediaHelper;
 	Boolean isObjectAddedToTheQue = false;
 	ArrayList temporarMediaArray = new ArrayList();
@@ -56,13 +57,8 @@ public class TextFileReader implements LineParsedListener {
 
 	Dictionary channelDictionary = new Hashtable();
 	Dictionary categoriesDictionay = new Hashtable();
-	Dictionary channellist    = new Hashtable();
 	HashMap<String, List<String>> countryMap = new HashMap<String, List<String>>();
-
-	// Define shows
-	String[] showsArray = new String[11];
-
-
+	Dictionary showsDictionary = new Hashtable();
 
 	public TextFileReader(BlockingQueue<AdapterResultItem> resultQueue, InputStream metadata,MediaHelper mediaHelper, FormatClient formatClient) {
 		this.metadata = metadata
@@ -79,25 +75,70 @@ public class TextFileReader implements LineParsedListener {
 		categoriesDictionay.put("International Sports News/International Sports Review","International Sports News");
 		categoriesDictionay.put("Golf/Masters, The","Golf/Masters");
 		categoriesDictionay.put("Golf/Masters,The","Golf/Masters");
+		categoriesDictionay.put("Golf/Open Championship, The","Golf/Open Championship");
 		categoriesDictionay.put("Motor Racing/Motor Sports","Motor Cycle Racing/SBK World Superbikes C'ship");
 		categoriesDictionay.put("Awards/Sports","Awards");
 		categoriesDictionay.put("Tennis/Roland Garros","Tennis/French Open");
 		categoriesDictionay.put("Mixed Martial Arts/Mixed Martial Arts","Martial Arts/Martial Arts");
+		categoriesDictionay.put("Tennis/Wimbledon","Tennis/Wimbledon Lawn Tennis C'ship");
+	
 
 
-
-		showsArray[0] = "FOX Sports Fit - Sister Hiit";
-		showsArray[1] = "FOX Sports Fit - 101 Exercises To Do Before You Die";
-		showsArray[2] = "Sport Confidential";
-		showsArray[3] = "FOX SPORTS Fit - Reebok Crossfit";
-		showsArray[4] = "Badminton Unlimited";
-		showsArray[5] = "National Icons";
-		showsArray[6] = "FOX Sports Fit - Fit For Fashion";
-		showsArray[7] = "FOX Sports Fit - STAR Block Workout";
-		showsArray[8] = "STAR Block Workout";
-		showsArray[9] = "FOX Sports Fit - Kirei Yoga";
-		showsArray[10] = "Fox Sports Central";
-
+		// Define Shows and Default image for shows
+		List<String> showList = new ArrayList<String>()
+		showList.add("FOX Sports Fit - Sister Hiit");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/50/490/Sister Hiit__738887.jpg");
+		showsDictionary.put("FOX Sports Fit - Sister Hiit",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FOX Sports Fit - 101 Exercises To Do Before You Die");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/754/823/101__229813.png");
+		showsDictionary.put("FOX Sports Fit - 101 Exercises To Do Before You Die",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Sport Confidential");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_DP/970/207/sportconfidential.jpeg");
+		showsDictionary.put("Sport Confidential",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FOX SPORTS Fit - Reebok Crossfit");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/754/823/crossfit.png");
+		showsDictionary.put("FOX SPORTS Fit - Reebok Crossfit",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Badminton Unlimited");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/19/355/Badminton Unlimited.jpg");
+		showsDictionary.put("Badminton Unlimited",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("National Icons");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/198/143/National_Icons__947224.jpg");
+		showsDictionary.put("National Icons",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FOX Sports Fit - Fit For Fashion");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/754/823/FFF1__782848.png");
+		showsDictionary.put("FOX Sports Fit - Fit For Fashion",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FOX Sports Fit - STAR Block Workout");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/755/299/star block.png");
+		showsDictionary.put("FOX Sports Fit - STAR Block Workout",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FOX Sports Fit - Kirei Yoga");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/754/823/yoga__721808.jpg");
+		showsDictionary.put("FOX Sports Fit - Kirei Yoga",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Fox Sports Central");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/148/315/FSCWEB.jpg");
+		showsDictionary.put("Fox Sports Central",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("KIA World Extreme Games");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/791/479/world extreme games.jpg");
+		showsDictionary.put("KIA World Extreme Games",showList)
 		// Set country code and encoder info for each channels
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
@@ -109,6 +150,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS SEA NPL");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_hk_1@312613/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS SEA NPL");
+		linktofile.add("FoxSportsHongKongAndThaiLand");
 		channelDictionary.put("ESN1", linktofile);
 
 		values = new ArrayList<String>();
@@ -119,6 +161,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS 2 NPL");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_hk_1@312614/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS 2 NPL");
+		linktofile.add("FoxSports2HongKongAndThaiLand");
 		channelDictionary.put("SEN1", linktofile);
 
 		values = new ArrayList<String>();
@@ -133,6 +176,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("Fox SPORTS 3");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs3_hk_1@312615/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("Fox SPORTS 3");
+		linktofile.add("FoxSports3");
 		channelDictionary.put("ESEA", linktofile);
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
@@ -147,45 +191,24 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS Indonesia");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_id_1@312609/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS Indonesia");
+		linktofile.add("FoxSportsIndonesia");
 		channelDictionary.put("EID1", linktofile);
 		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
 
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
 
-		 values = new ArrayList<String>();
-		 values.add("ID");
-		 values.add("PH");
-		 values.add("SG");
-		 countryMap.put("F2E1", values);
-		 linktofile = new ArrayList<String>();
-		 linktofile.add("FOX SPORTS 2 SEA");
-		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
-		 linktofile.add("FOX SPORTS 2 S.E.A");
-		 channelDictionary.put("F2E1", linktofile);
-		
-		  values = new ArrayList<String>();
-		 values.add("SG");
-		 countryMap.put("ESE1", values);
-		 linktofile = new ArrayList<String>();
-		 linktofile.add("FOX SPORTS S.E.A");
-		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
-		 linktofile.add("FOX SPORTS S.E.A");
-		 channelDictionary.put("ESE1", linktofile);
-		
-
-		// ------------------- This is Temporary for Opted channel ( Roland Garos not for SG ) --------------------------------------------------
-
-	/*	values = new ArrayList<String>();
+		values = new ArrayList<String>();
 		values.add("ID");
 		values.add("PH");
 		values.add("SG");
-		countryMap.put("F2S1", values);
+		countryMap.put("F2E1", values);
 		linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS 2 SEA");
-		linktofile.add("http://fsplive_hls-lh.akamaihd.net/i/fsp_hls_fssea_1@305330/master.m3u8");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS 2 S.E.A");
-		channelDictionary.put("F2S1", linktofile);
+		linktofile.add("FoxSports2");
+		channelDictionary.put("F2E1", linktofile);
 
 		values = new ArrayList<String>();
 		values.add("SG");
@@ -194,9 +217,34 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS S.E.A");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS S.E.A");
+		linktofile.add("FoxSportsSingapore");
 		channelDictionary.put("ESE1", linktofile);
 
-		*/
+
+		// ------------------- This is Temporary for Opted channel ( Roland Garos not for SG ) --------------------------------------------------
+
+		/* values = new ArrayList<String>();
+		 values.add("ID");
+		 values.add("PH");
+		 values.add("SG");
+		 countryMap.put("F2S1", values);
+		 linktofile = new ArrayList<String>();
+		 linktofile.add("FOX SPORTS 2 SEA");
+		 linktofile.add("http://fsplive_hls-lh.akamaihd.net/i/fsp_hls_fssea_1@305330/master.m3u8");
+		 linktofile.add("FOX SPORTS 2 S.E.A");
+		 linktofile.add("FoxSports2");
+		 channelDictionary.put("F2S1", linktofile);
+		 values = new ArrayList<String>();
+		 values.add("SG");
+		 countryMap.put("ESE1", values);
+		 linktofile = new ArrayList<String>();
+		 linktofile.add("FOX SPORTS S.E.A");
+		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		 linktofile.add("FOX SPORTS S.E.A");
+		 linktofile.add("FoxSportsSingapore");
+		 channelDictionary.put("ESE1", linktofile);
+		 */
+
 		// ---------------------------------------------------------------------------------------------------------------------------------------
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
@@ -210,6 +258,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS Malaysia");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_my_1@312606/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS Malaysia");
+		linktofile.add("FoxSportsMalaysia");
 		channelDictionary.put("EML1", linktofile);
 
 		values = new ArrayList<String>();
@@ -219,6 +268,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS 2 Malaysia");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_my_1@312607/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS 2 Malaysia");
+		linktofile.add("FoxSports2Malaysia");
 		channelDictionary.put("F2M1", linktofile);
 
 		// --------- Malaysia Channel - Fox Sports Malaysia & Fox Sports 2 Malaysia -----------------
@@ -232,6 +282,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS Philippines");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_ph_1@312608/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS Philippines");
+		linktofile.add("FoxSportsPhilipines");
 		channelDictionary.put("EPH1", linktofile);
 
 		// --------- Philippine Channel -  Fox Sports Philippine ------------------------------------
@@ -248,6 +299,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("Fox SPORTS 3");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs3_hk_1@312615/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("Fox SPORTS 3");
+		linktofile.add("FoxSports3");
 		channelDictionary.put("FM31", linktofile);
 
 
@@ -324,17 +376,27 @@ public class TextFileReader implements LineParsedListener {
 	}
 
 	// This method loops through the showsarray to check wheather the current media is show or not
-	boolean checkForShow(String title,String[] arrayOfShows){
+	boolean checkForShow(String title){
 		boolean isShow = false;
-
-		for (int i=0;i<arrayOfShows.length;i++){
-			if(title.toLowerCase().startsWith(arrayOfShows.getAt(i).toLowerCase())){
+		
+		if (title==""||title==null){
+			return isShow;
+		}
+		
+		for (String key : showsDictionary.keySet()) {
+			
+			if(title.toLowerCase().startsWith(key.toLowerCase())){
 				isShow = true
+				imageThumb  = showsDictionary.get(key).get(1);
 				break
 			}
 			isShow = false
-		}
-
+		
+		 }
+		 
+		 if(!isShow){
+			 imageThumb = "http://devapps.foxsportsasia.com/img-fsp/FICLIVE.png"
+		 }		 
 		return isShow
 	}
 
@@ -392,14 +454,14 @@ public class TextFileReader implements LineParsedListener {
 
 			String competitorTexts = row[11].replaceAll("\"","")
 
-			if(mediaTitle!=""){
+			if(row[9].replaceAll("\"", "")!=""){
 				if(competitorTexts!=""){
-					media.title = mediaTitle + " - " + competitorTexts
+					media.title = row[9].replaceAll("\"", "") + " - " + competitorTexts
 				}else{
 
-					media.title = mediaTitle
+					media.title = row[9].replaceAll("\"", "")
 				}
-
+				
 				// Remove the pound sign from HK text file
 				int poundIngex = media.title.indexOf("#");
 				if (poundIngex != -1)
@@ -417,6 +479,8 @@ public class TextFileReader implements LineParsedListener {
 		}
 
 		if(ex==null){
+
+
 
 			// if new media set the country list, else check for the county code, if country code dosen't exist add the country code to media countries
 			if (!update){
@@ -459,7 +523,7 @@ public class TextFileReader implements LineParsedListener {
 
 			media.setCustomValue(null, "isLive", true);
 			media.setCustomValue(null, "isFree", false);
-			media.setCustomValue(null, "isShow", checkForShow(mediaTitle,showsArray));
+			media.setCustomValue(null, "isShow", checkForShow(mediaTitle));
 			media.setCustomValue(null, "isChannel", false);
 
 			// Split column values for Competitor A & B
@@ -497,7 +561,7 @@ public class TextFileReader implements LineParsedListener {
 
 
 			// If media update true then replace the existing m3u8 file
-			String mediaFileID = row[17].replaceAll("\"", "")
+			String mediaFileID = row[17].replaceAll("\"", "")+row[0].replaceAll("\"","")
 
 			if (update){
 
@@ -508,10 +572,9 @@ public class TextFileReader implements LineParsedListener {
 
 			}
 
-
 			IngestMediaFile mediaFileSource = new IngestMediaFile()
 			mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)
-			mediaFileSource.assetTypes = ["Live"]
+			mediaFileSource.assetTypes = [channelDictionary.get(row[0].replaceAll("\"", "")).get(3)]
 			mediaFileSource.contentType = ContentType.video
 			Format format1 = formatClient.getByExtension("m3u")
 			mediaFileSource.format = format1
@@ -525,22 +588,35 @@ public class TextFileReader implements LineParsedListener {
 			mediaFileSource.ingestOptions = ingestOptions
 			mediaFileSource.isDefault = true
 
+
+
+
 			linkIngestMediaFiles << mediaFileSource
+
+
 
 
 			// Set Mezzanine Image
 			if(!update){
-				IngestMediaFile mediaFileThumb = new IngestMediaFile()
-				mediaFileThumb.url = imageThumb
-				mediaFileThumb.assetTypes = ["Mezzanine Image"]
-				mediaFileThumb.transferInfo = transferInfo
-				mediaFileThumb.ingestOptions = ingestOptions
-				ingestMediaThumbnailFiles << mediaFileThumb
+				
+				IngestMediaFile fileToDelete = new IngestMediaFile()
+				fileToDelete.guid = mediaFileID+"IMG"
+				fileToDelete.deleted = true
+				ingestMediaThumbnailFiles << fileToDelete
+
 			}
+			
+			IngestMediaFile mediaFileThumb = new IngestMediaFile()
+			mediaFileThumb.url = imageThumb
+			mediaFileThumb.assetTypes = ["Mezzanine Image"]
+			mediaFileThumb.transferInfo = transferInfo
+			mediaFileThumb.ingestOptions = ingestOptions
+			mediaFileThumb.guid = mediaFileID +"IMG"
+			ingestMediaThumbnailFiles << mediaFileThumb
+			
 			// Set media thumbnails & media contents
 			media.setThumbnails(ingestMediaThumbnailFiles.toArray(new IngestMediaFile[ingestMediaThumbnailFiles.size()]))
 			media.setContent(linkIngestMediaFiles.toArray(new IngestMediaFile[linkIngestMediaFiles.size()]))
-			//	}
 		}
 
 
@@ -582,6 +658,18 @@ public class TextFileReader implements LineParsedListener {
 
 					existingMedia.countries = list.toArray()
 					existingMedia.setCustomValue(accountID, "allowedCountry",existingMedia.countries)
+
+
+
+					IngestMediaFile[] imfArr = existingMedia.getContent()
+					String mediaFileID = row[17].replaceAll("\"", "")+row[0].replaceAll("\"","")
+					for (imf in imfArr)
+					{
+
+						linkIngestMediaFiles << imf
+					}
+
+					existingMedia.setContent(linkIngestMediaFiles.toArray(new IngestMediaFile[linkIngestMediaFiles.size()]))
 
 
 
