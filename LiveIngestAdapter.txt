@@ -525,6 +525,7 @@ public class TextFileReader implements LineParsedListener {
 			media.setCustomValue(null, "isFree", false);
 			media.setCustomValue(null, "isShow", checkForShow(mediaTitle));
 			media.setCustomValue(null, "isChannel", false);
+			media.setCustomValue(null, "isExtraCam", false);
 
 			// Split column values for Competitor A & B
 			def competitorValues = row[11].replaceAll("\"", "").split(' vs. ')
@@ -549,10 +550,16 @@ public class TextFileReader implements LineParsedListener {
 			// set categories based on the text file information
 			CategoryInfo catInfo = new CategoryInfo()
 
-
-			String categoryName = row[1].replaceAll("\"", "")+"/"+ row[2].replaceAll("\"", "")
+			String parentCategory = row[1].replaceAll("\"", "");
+			String parentCategoryAfterChangingSoccer =  parentCategory.toLowerCase().startsWith("Soccer".toLowerCase())?parentCategory.replaceAll("Soccer","Football"):parentCategory;
+			String subCategory = row[2].replaceAll("\"", "");
+			String subCategoryAfterChangingSoccer = subCategory.toLowerCase().startsWith("Soccer".toLowerCase())?subCategory.replaceAll("Soccer","Football"):subCategory;
+			String categoryName = parentCategoryAfterChangingSoccer +"/"+subCategoryAfterChangingSoccer;
+			categoryName = categoryName.replaceAll("None","");
 			categoryName = categoryName.startsWith("/") ? categoryName.substring(1) : categoryName;
-			catInfo.name = switchCategories(replaceXmlSpecialCharacters(categoryName.endsWith("/") ? categoryName.substring(0,categoryName.length()-1) : categoryName));
+			String replaceSpecialCharacters = switchCategories(replaceXmlSpecialCharacters(categoryName.endsWith("/") ? categoryName.substring(0,categoryName.length()-1) : categoryName));
+			
+			catInfo.name = replaceSpecialCharacters;
 
 
 			//catInfo.name = row[1].replaceAll("\"", "")+"/"+ row[2].replaceAll("\"", "")
