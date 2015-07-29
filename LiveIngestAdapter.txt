@@ -152,18 +152,23 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS SEA NPL");
 		linktofile.add("FoxSportsHongKongAndThaiLand");
 		channelDictionary.put("ESN1", linktofile);
-
+		
+		// ------------------- Consolidating all FS2 Channels into One ( All FS2 Except FS2Malaysia are changed to FS2 HK) --------------------------------
 		values = new ArrayList<String>();
 		values.add("HK");
 		values.add("TH");
+		values.add("ID");
+		values.add("PH");
+		values.add("SG");
 		countryMap.put("SEN1", values);
 		linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS 2 NPL");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_hk_1@312614/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS 2 NPL");
-		linktofile.add("FoxSports2HongKongAndThaiLand");
+//		linktofile.add("FoxSports2HongKongAndThaiLand");
+		linktofile.add("FoxSports2HK");
 		channelDictionary.put("SEN1", linktofile);
-
+		
 		values = new ArrayList<String>();
 		values.add("HK");
 		values.add("ID");
@@ -197,7 +202,9 @@ public class TextFileReader implements LineParsedListener {
 
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
-
+		
+		// ----------- FS2 is consollidated into one channel (FS2 HK) ---------------------------------------
+		/*
 		values = new ArrayList<String>();
 		values.add("ID");
 		values.add("PH");
@@ -209,6 +216,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS 2 S.E.A");
 		linktofile.add("FoxSports2");
 		channelDictionary.put("F2E1", linktofile);
+		*/
 
 		values = new ArrayList<String>();
 		values.add("SG");
