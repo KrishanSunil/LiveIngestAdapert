@@ -141,6 +141,42 @@ public class TextFileReader implements LineParsedListener {
 		showList.add("KIA World Extreme Games");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/791/479/world extreme games.jpg");
 		showsDictionary.put("KIA World Extreme Games",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Sports Unlimited");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/244/827/Sports%20Unlimited__995441.jpg");
+		showsDictionary.put("Sports Unlimited",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Watersports World");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/243/351/Watersports World.jpg");
+		showsDictionary.put("Watersports World",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Planet Speed");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/88/779/Planet Speed.jpg");
+		showsDictionary.put("Planet Speed",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Lumberjacks Season");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/626/95/lumberjack1.png");
+		showsDictionary.put("Lumberjacks Season",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Inside Grand Prix");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/253/655/Inside Grand Prix 2.jpg");
+		showsDictionary.put("Inside Grand Prix",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("FIBA World Basketball Weekly");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/339/874/FIBA.jpg");
+		showsDictionary.put("FIBA World Basketball Weekly",showList)
+		
+		showList = new ArrayList<String>()
+		showList.add("Liga Bbva 2014/15 Weekly");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/176/175/La Liga Weekly Review.jpg");
+		showsDictionary.put("Liga Bbva 2014/15 Weekly",showList)
+		
 		// Set country code and encoder info for each channels
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
@@ -205,21 +241,6 @@ public class TextFileReader implements LineParsedListener {
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
 
-		// ----------- FS2 is consollidated into one channel (FS2 HK) ---------------------------------------
-		/*
-		 values = new ArrayList<String>();
-		 values.add("ID");
-		 values.add("PH");
-		 values.add("SG");
-		 countryMap.put("F2E1", values);
-		 linktofile = new ArrayList<String>();
-		 linktofile.add("FOX SPORTS 2 SEA");
-		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_sg_1@312611/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
-		 linktofile.add("FOX SPORTS 2 S.E.A");
-		 linktofile.add("FoxSports2");
-		 channelDictionary.put("F2E1", linktofile);
-		 */
-
 		values = new ArrayList<String>();
 		values.add("SG");
 		countryMap.put("ESE1", values);
@@ -229,33 +250,6 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS S.E.A");
 		linktofile.add("FoxSportsSingapore");
 		channelDictionary.put("ESE1", linktofile);
-
-
-		// ------------------- This is Temporary for Opted channel ( Roland Garos not for SG ) --------------------------------------------------
-
-		/* values = new ArrayList<String>();
-		 values.add("ID");
-		 values.add("PH");
-		 values.add("SG");
-		 countryMap.put("F2S1", values);
-		 linktofile = new ArrayList<String>();
-		 linktofile.add("FOX SPORTS 2 SEA");
-		 linktofile.add("http://fsplive_hls-lh.akamaihd.net/i/fsp_hls_fssea_1@305330/master.m3u8");
-		 linktofile.add("FOX SPORTS 2 S.E.A");
-		 linktofile.add("FoxSports2");
-		 channelDictionary.put("F2S1", linktofile);
-		 values = new ArrayList<String>();
-		 values.add("SG");
-		 countryMap.put("ESE1", values);
-		 linktofile = new ArrayList<String>();
-		 linktofile.add("FOX SPORTS S.E.A");
-		 linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
-		 linktofile.add("FOX SPORTS S.E.A");
-		 linktofile.add("FoxSportsSingapore");
-		 channelDictionary.put("ESE1", linktofile);
-		 */
-
-		// ---------------------------------------------------------------------------------------------------------------------------------------
 
 		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
 
