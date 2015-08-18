@@ -134,7 +134,7 @@ public class TextFileReader implements LineParsedListener {
 
 		showList = new ArrayList<String>()
 		showList.add("Fox Sports Central");
-		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/148/315/FSCWEB.jpg");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/80/915/FOX SPORTS Central.jpg");
 		showsDictionary.put("Fox Sports Central",showList)
 
 		showList = new ArrayList<String>()
@@ -176,13 +176,17 @@ public class TextFileReader implements LineParsedListener {
 		showList.add("Liga Bbva 2014/15 Weekly");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/176/175/La Liga Weekly Review.jpg");
 		showsDictionary.put("Liga Bbva 2014/15 Weekly",showList)
-		
+
+		showList = new ArrayList<String>()
+		showList.add("UFC UNLEASHED");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/808/1010/Featured_portfolio_UFC__512516.jpg");
+		showsDictionary.put("UFC UNLEASHED",showList);	
+	
 		// Set country code and encoder info for each channels
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
 		List<String> values = new ArrayList<String>();
 		values.add("HK");
-		values.add("TH");
 		countryMap.put("ESN1", values);
 		ArrayList<String> linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS SEA NPL");
@@ -224,6 +228,18 @@ public class TextFileReader implements LineParsedListener {
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
 
+		// --------- TH Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
+		values = new ArrayList<String>();
+		values.add("TH");
+		countryMap.put("ESN", values);
+		linktofile = new ArrayList<String>();
+		linktofile.add("FOX SPORTS Thailand");
+		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_th_1@312616/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
+		linktofile.add("FOX SPORTS Thailand");
+		linktofile.add("FoxSportsThailand");
+		channelDictionary.put("ESN", linktofile);
+		
+		//-------------------------------------------------------------------------------
 
 		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
 
@@ -323,6 +339,16 @@ public class TextFileReader implements LineParsedListener {
 
 		return currentDate+"/"+month+"/"+    year+" "+timeString;
 	}
+	
+	public String removeHashString(String stringToCheckForHash){
+		int poundIngex = stringToCheckForHash.indexOf("#");
+		if (poundIngex != -1)
+		{
+			return stringToCheckForHash.substring(0, poundIngex);
+		}
+		
+		return stringToCheckForHash;
+	}
 
 
 	/*
@@ -335,23 +361,31 @@ public class TextFileReader implements LineParsedListener {
 		keywords = keywords.startsWith(",") ? keywords.substring(1) : keywords;
 		media.keywords = keywords.endsWith(",") ? keywords.substring(0,keywords.length()-1) : keywords;
 
-		media.setCustomValue(accountID, "Venue", row[10].replaceAll("\"", ""));
-		media.setCustomValue(accountID, "Keywords", media.keywords);
+		media.setCustomValue(accountID, "Venue", removeHashString(row[10].replaceAll("\"", "")));
+		media.setCustomValue(accountID, "Keywords", removeHashString(media.keywords));
 		media.setCustomValue(accountID, "specialAiringCategory","LIVE (OD)");
 		media.setCustomValue(accountID, "sourceChannel", channelDictionary.get(row[0].replaceAll("\"", "")).get(0));
-		media.setCustomValue(accountID, "seriesName", row[14]);
+		media.setCustomValue(accountID, "seriesName", removeHashString(row[14]));
 
 		media.setCustomValue(null, "isLive", true);
 		media.setCustomValue(null, "isFree", false);
 		media.setCustomValue(null, "isShow", isShow);
 		media.setCustomValue(null, "isChannel", false);
 		media.setCustomValue(null, "isExtraCam", false);
+		def competitorValues = null;
+		
+		boolean isStringContaingVSDot =  row[11].replaceAll("\"", "").contains('vs.');
+		
+		if(isStringContaingVSDot){
+			competitorValues = row[11].replaceAll("\"", "").split(' vs. ');
+		} else {
+			competitorValues = row[11].replaceAll("\"", "").split(' vs ');
+		}
 
-
-		def competitorValues = row[11].replaceAll("\"", "").split(' vs. ')
-		media.setCustomValue(accountID, "CompetitorA", competitorValues[0]);
+		 
+		media.setCustomValue(accountID, "CompetitorA", removeHashString(competitorValues[0]));
 		if(competitorValues.size()>1){
-			media.setCustomValue(accountID, "CompetitorB", competitorValues[1]);
+			media.setCustomValue(accountID, "CompetitorB", removeHashString(competitorValues[1]));
 		}
 
 
