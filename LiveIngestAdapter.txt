@@ -134,7 +134,7 @@ public class TextFileReader implements LineParsedListener {
 
 		showList = new ArrayList<String>()
 		showList.add("Fox Sports Central");
-		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/80/915/FOX SPORTS Central.jpg");
+		showList.add("http://apps.foxsportsasia.com/FoxSportsCentral/FSC-2-960x540.jpg");
 		showsDictionary.put("Fox Sports Central",showList)
 
 		showList = new ArrayList<String>()
@@ -187,13 +187,13 @@ public class TextFileReader implements LineParsedListener {
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
 		List<String> values = new ArrayList<String>();
 		values.add("HK");
-		countryMap.put("ESN1", values);
+		countryMap.put("FSHK", values);
 		ArrayList<String> linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS SEA NPL");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_hk_1@312613/master.m3u8?hdnea=st={date:-120:true}~exp={date:120:true}~acl=/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS SEA NPL");
 		linktofile.add("FoxSportsHongKongAndThaiLand");
-		channelDictionary.put("ESN1", linktofile);
+		channelDictionary.put("FSHK", linktofile);
 
 		// ------------------- Consolidating all FS2 Channels into One ( All FS2 Except FS2Malaysia are changed to FS2 HK) --------------------------------
 		values = new ArrayList<String>();
@@ -228,16 +228,16 @@ public class TextFileReader implements LineParsedListener {
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
 
-		// --------- TH Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
+		// --------- TH Channels - Fox Sports Thailand & Fox Sports 2 NPL & Fox Sports 3 ---------------
 		values = new ArrayList<String>();
 		values.add("TH");
-		countryMap.put("ESN", values);
+		countryMap.put("FSTH", values);
 		linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS Thailand");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_th_1@312616/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS Thailand");
 		linktofile.add("FoxSportsThailand");
-		channelDictionary.put("ESN", linktofile);
+		channelDictionary.put("FSTH", linktofile);
 		
 		//-------------------------------------------------------------------------------
 
