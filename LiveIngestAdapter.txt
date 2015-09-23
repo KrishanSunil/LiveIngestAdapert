@@ -29,7 +29,7 @@ import com.theplatform.groovy.helper.MediaHelper
 import com.theplatform.media.api.data.objects.ContentType
 import com.theplatform.media.api.data.objects.Format
 import com.theplatform.media.api.data.objects.FormatClient
-
+import com.theplatform.ingest.data.objects.WorkflowOption;
 
 
 
@@ -141,37 +141,37 @@ public class TextFileReader implements LineParsedListener {
 		showList.add("KIA World Extreme Games");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/791/479/world extreme games.jpg");
 		showsDictionary.put("KIA World Extreme Games",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Sports Unlimited");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/244/827/Sports%20Unlimited__995441.jpg");
 		showsDictionary.put("Sports Unlimited",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Watersports World");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/243/351/Watersports World.jpg");
 		showsDictionary.put("Watersports World",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Planet Speed");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/88/779/Planet Speed.jpg");
 		showsDictionary.put("Planet Speed",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Lumberjacks Season");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/626/95/lumberjack1.png");
 		showsDictionary.put("Lumberjacks Season",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Inside Grand Prix");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/253/655/Inside Grand Prix 2.jpg");
 		showsDictionary.put("Inside Grand Prix",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("FIBA World Basketball Weekly");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/339/874/FIBA.jpg");
 		showsDictionary.put("FIBA World Basketball Weekly",showList)
-		
+
 		showList = new ArrayList<String>()
 		showList.add("Liga Bbva 2014/15 Weekly");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/176/175/La Liga Weekly Review.jpg");
@@ -180,8 +180,13 @@ public class TextFileReader implements LineParsedListener {
 		showList = new ArrayList<String>()
 		showList.add("UFC UNLEASHED");
 		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/808/1010/Featured_portfolio_UFC__512516.jpg");
-		showsDictionary.put("UFC UNLEASHED",showList);	
-	
+		showsDictionary.put("UFC UNLEASHED",showList);
+
+		showList = new ArrayList<String>()
+		showList.add("Red Bull Air Race");
+		showList.add("http://images.foxplayasia.com/images/Fox_Sports_Asia_Prod_CP/626/594/Red%20Bull%20Air%20Race3.jpg");
+		showsDictionary.put("Red Bull Air Race",showList);
+
 		// Set country code and encoder info for each channels
 
 		// --------- HK Channels - Fox Sports NPL & Fox Sports 2 NPL & Fox Sports 3 ---------------
@@ -207,7 +212,6 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS 2 NPL");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs2_hk_1@312614/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS 2 NPL");
-		//		linktofile.add("FoxSports2HongKongAndThaiLand");
 		linktofile.add("FoxSports2HK");
 		channelDictionary.put("SEN1", linktofile);
 
@@ -238,7 +242,7 @@ public class TextFileReader implements LineParsedListener {
 		linktofile.add("FOX SPORTS Thailand");
 		linktofile.add("FoxSportsThailand");
 		channelDictionary.put("FSTH", linktofile);
-		
+
 		//-------------------------------------------------------------------------------
 
 		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
@@ -255,19 +259,19 @@ public class TextFileReader implements LineParsedListener {
 		// --------- Indonesia Channel - Fox Sports Indonesia -------------------------------------
 
 
-		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
+		// --------- Singapore Channel - Fox Sports S.E.A----------------------
 
 		values = new ArrayList<String>();
 		values.add("SG");
-		countryMap.put("ESE1", values);
+		countryMap.put("ESG1", values);
 		linktofile = new ArrayList<String>();
 		linktofile.add("FOX SPORTS S.E.A");
 		linktofile.add("http://fspsecurehls-lh.akamaihd.net/i/fs_sg_1@312610/master.m3u8?hdnts=st={date:-120:true}~exp={date:120:true}~acl=/i/*~hmac={token:AkamaiEdgeAuth:68CCD77E7B0277C257F74A2ADD3BE796}&dw=30");
 		linktofile.add("FOX SPORTS S.E.A");
 		linktofile.add("FoxSportsSingapore");
-		channelDictionary.put("ESE1", linktofile);
+		channelDictionary.put("ESG1", linktofile);
 
-		// --------- Singapore Channel - Fox Sports S.E.A & Fox Sports 2 S.E.A ----------------------
+		// --------- Singapore Channel - Fox Sports S.E.A----------------------
 
 		// --------- Malaysia Channel - Fox Sports Malaysia & Fox Sports 2 Malaysia -----------------
 
@@ -339,14 +343,14 @@ public class TextFileReader implements LineParsedListener {
 
 		return currentDate+"/"+month+"/"+    year+" "+timeString;
 	}
-	
+
 	public String removeHashString(String stringToCheckForHash){
 		int poundIngex = stringToCheckForHash.indexOf("#");
 		if (poundIngex != -1)
 		{
 			return stringToCheckForHash.substring(0, poundIngex);
 		}
-		
+
 		return stringToCheckForHash;
 	}
 
@@ -373,16 +377,16 @@ public class TextFileReader implements LineParsedListener {
 		media.setCustomValue(null, "isChannel", false);
 		media.setCustomValue(null, "isExtraCam", false);
 		def competitorValues = null;
-		
+
 		boolean isStringContaingVSDot =  row[11].replaceAll("\"", "").contains('vs.');
-		
+
 		if(isStringContaingVSDot){
 			competitorValues = row[11].replaceAll("\"", "").split(' vs. ');
 		} else {
 			competitorValues = row[11].replaceAll("\"", "").split(' vs ');
 		}
 
-		 
+
 		media.setCustomValue(accountID, "CompetitorA", removeHashString(competitorValues[0]));
 		if(competitorValues.size()>1){
 			media.setCustomValue(accountID, "CompetitorB", removeHashString(competitorValues[1]));
@@ -414,8 +418,9 @@ public class TextFileReader implements LineParsedListener {
 		media.categories = catList.toArray(new CategoryInfo[catList.size()])
 
 
-		
+
 		String mediaFileID = row[17].replaceAll("\"", "")+row[0].replaceAll("\"","")
+
 		if (update){
 
 			IngestMediaFile fileToDelete = new IngestMediaFile()
@@ -426,7 +431,7 @@ public class TextFileReader implements LineParsedListener {
 		}
 
 		IngestMediaFile mediaFileSource = new IngestMediaFile()
-		mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1);
+		mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)+"&start="+media.availableDate.getTime()/1000+"&end="+media.expirationDate.getTime()/1000;
 		mediaFileSource.assetTypes = [channelDictionary.get(row[0].replaceAll("\"", "")).get(3)]
 		mediaFileSource.contentType = ContentType.video
 		Format format1 = formatClient.getByExtension("m3u")
@@ -450,10 +455,10 @@ public class TextFileReader implements LineParsedListener {
 
 
 		// Set Mezzanine Image
-		if(!update){
+		if(update){
 
 			IngestMediaFile fileToDelete = new IngestMediaFile()
-			fileToDelete.guid =  mediaFileID+"IMG";
+			fileToDelete.guid =  row[17].replaceAll("\"", "")+"IMG";
 			fileToDelete.deleted = true
 			ingestMediaThumbnailFiles << fileToDelete
 
@@ -464,7 +469,7 @@ public class TextFileReader implements LineParsedListener {
 		mediaFileThumb.assetTypes = ["Mezzanine Image"]
 		mediaFileThumb.transferInfo = transferInfo
 		mediaFileThumb.ingestOptions = ingestOptions
-		mediaFileThumb.guid = mediaFileID+"IMG" ;
+		mediaFileThumb.guid = row[17].replaceAll("\"", "")+"IMG" ;
 		ingestMediaThumbnailFiles << mediaFileThumb
 
 		// Set media thumbnails & media contents
@@ -472,11 +477,13 @@ public class TextFileReader implements LineParsedListener {
 		media.setContent(linkIngestMediaFiles.toArray(new IngestMediaFile[linkIngestMediaFiles.size()]))
 
 	}
-	
+
 	/*
 	 * if the media is Fox Sports Central Create a VOD  
 	 */
 	public void CreateFoxSportsCentralVOD(IngestMedia mediaToIngest,String[] rowValues){
+
+		def accountID = "http://access.auth.theplatform.com/data/Account/2337729561"
 
 		if(mediaToIngest.title.toLowerCase().startsWith("Fox Sports Central".toLowerCase())){
 
@@ -486,7 +493,7 @@ public class TextFileReader implements LineParsedListener {
 				update = true;
 			}
 			foxSportsCentralVOD.guid = mediaToIngest.guid+"VOD";
-			foxSportsCentralVOD.title = mediaToIngest.title;
+			foxSportsCentralVOD.title = mediaToIngest.title+" - Replay";
 			foxSportsCentralVOD.availableDate = mediaToIngest.expirationDate;
 
 			// add 24 hours to the expirationDate
@@ -527,12 +534,12 @@ public class TextFileReader implements LineParsedListener {
 			for (imf in imfArr)
 			{
 				IngestMediaFile mediaFileSource = new IngestMediaFile()
-				mediaFileSource.url = imf.url+"&start="+mediaToIngest.availableDate.getTime()/1000+"&end="+mediaToIngest.expirationDate.getTime()/1000;
+				mediaFileSource.url = imf.url;//+"&start="+mediaToIngest.availableDate.getTime()/1000+"&end="+mediaToIngest.expirationDate.getTime()/1000;
 				mediaFileSource.assetTypes = imf.assetTypes;
 				mediaFileSource.contentType = ContentType.video
 				Format format1 = formatClient.getByExtension("m3u")
 				mediaFileSource.format = format1
-				mediaFileSource.guid = mediaFileID+"M3UVOD";
+				mediaFileSource.guid = imf.guid+"M3UVOD";
 				mediaFileSource.deleted = false
 
 				transferInfo.supportsStreaming = true
@@ -565,7 +572,7 @@ public class TextFileReader implements LineParsedListener {
 				mediaFileThumb.assetTypes = ["Mezzanine Image"]
 				mediaFileThumb.transferInfo = transferInfo
 				mediaFileThumb.ingestOptions = ingestOptions
-				mediaFileThumb.guid = mediaFileID+"IMGVOD";
+				mediaFileThumb.guid = thumb.guid+"IMGVOD";
 				ingestMediaThumbnailFiles << mediaFileThumb
 
 
@@ -575,7 +582,32 @@ public class TextFileReader implements LineParsedListener {
 			// Set media thumbnails & media contents
 			foxSportsCentralVOD.setThumbnails(ingestMediaThumbnailFiles.toArray(new IngestMediaFile[ingestMediaThumbnailFiles.size()]))
 			foxSportsCentralVOD.setContent(linkIngestMediaFiles.toArray(new IngestMediaFile[linkIngestMediaFiles.size()]))
-			
+
+
+			// Automatically Publish the Fox Sports Central media
+
+			// Create a WorkflowOption for an individual media item
+			WorkflowOption wkflwOpt = new WorkflowOption()
+
+			// Set the options for the publish action
+			wkflwOpt.setService("sharing")
+			wkflwOpt.setMethod("auto-detect")
+
+			// The profile argument tells the publish service
+			// which publish profile to use with this media.
+
+
+			Map<String, String> argMap = new HashMap<String, String>()
+			argMap.put("profileId", "http://data.share.theplatform.com/sharing/data/OutletProfile/19938")
+
+			wkflwOpt.setArguments(argMap)
+
+			// Assign the workflow request to the media.
+			def woArr = new WorkflowOption[1]
+			woArr[0] = wkflwOpt
+			foxSportsCentralVOD.setWorkflowOptions(woArr);
+
+
 			// Add the VOD into the results Queue
 			AdapterResultItem results = new AdapterResultItem()
 			results.setMedia(foxSportsCentralVOD);
@@ -598,7 +630,38 @@ public class TextFileReader implements LineParsedListener {
 		while(i.hasNext()) {
 			Map.Entry me = (Map.Entry)i.next();
 
-			CreateFoxSportsCentralVOD(me.getValue());
+			IngestMedia mediaToIngest = me.getValue()
+			if(mediaToIngest.title.toLowerCase().startsWith("Fox Sports Central".toLowerCase())){
+
+				CreateFoxSportsCentralVOD(mediaToIngest);
+
+				WorkflowOption wkflwOpt = new WorkflowOption()
+
+				// Set the options for the publish action
+				wkflwOpt.setService("sharing")
+				wkflwOpt.setMethod("auto-detect")
+
+				// The profile argument tells the publish service
+				// which publish profile to use with this media.
+
+
+				Map<String, String> argMap = new HashMap<String, String>()
+				argMap.put("profileId", "http://data.share.theplatform.com/sharing/data/OutletProfile/19938")
+
+				wkflwOpt.setArguments(argMap)
+
+				// Assign the workflow request to the media.
+				def woArr = new WorkflowOption[1]
+				woArr[0] = wkflwOpt
+				mediaToIngest.setWorkflowOptions(woArr);
+
+				AdapterResultItem results = new AdapterResultItem()
+				results.setMedia(mediaToIngest);
+				resultQueue.put(results);
+
+				continue;
+
+			}
 
 			AdapterResultItem results = new AdapterResultItem()
 			results.setMedia(me.getValue());
