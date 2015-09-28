@@ -420,7 +420,7 @@ public class TextFileReader implements LineParsedListener {
 
 
 		String mediaFileID = row[17].replaceAll("\"", "")+row[0].replaceAll("\"","")
-
+		
 		if (update){
 
 			IngestMediaFile fileToDelete = new IngestMediaFile()
@@ -431,7 +431,7 @@ public class TextFileReader implements LineParsedListener {
 		}
 
 		IngestMediaFile mediaFileSource = new IngestMediaFile()
-		mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)+"&start="+media.availableDate.getTime()/1000+"&end="+media.expirationDate.getTime()/1000;
+		mediaFileSource.url = channelDictionary.get(row[0].replaceAll("\"", "")).get(1)+"&start="+media.availableDate.getTime()/1000;
 		mediaFileSource.assetTypes = [channelDictionary.get(row[0].replaceAll("\"", "")).get(3)]
 		mediaFileSource.contentType = ContentType.video
 		Format format1 = formatClient.getByExtension("m3u")
@@ -534,7 +534,7 @@ public class TextFileReader implements LineParsedListener {
 			for (imf in imfArr)
 			{
 				IngestMediaFile mediaFileSource = new IngestMediaFile()
-				mediaFileSource.url = imf.url;//+"&start="+mediaToIngest.availableDate.getTime()/1000+"&end="+mediaToIngest.expirationDate.getTime()/1000;
+				mediaFileSource.url = imf.url+"&end="+mediaToIngest.expirationDate.getTime()/1000;
 				mediaFileSource.assetTypes = imf.assetTypes;
 				mediaFileSource.contentType = ContentType.video
 				Format format1 = formatClient.getByExtension("m3u")
@@ -605,8 +605,8 @@ public class TextFileReader implements LineParsedListener {
 			// Assign the workflow request to the media.
 			def woArr = new WorkflowOption[1]
 			woArr[0] = wkflwOpt
-			foxSportsCentralVOD.setWorkflowOptions(woArr);
-
+			foxSportsCentralVOD.setWorkflowOptions(woArr); 
+			
 
 			// Add the VOD into the results Queue
 			AdapterResultItem results = new AdapterResultItem()
